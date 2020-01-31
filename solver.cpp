@@ -1,12 +1,16 @@
 #include<bits/stdc++.h>
+#define DEBUG
 using namespace std;
+void here(){
+    cout<<"here\n";
+}
 class clause{
     public:
         bool sat=false,tautology=false;
         unordered_set<int>literals;  
         clause(){}
         clause(int unitLiteral){
-            addLiteral(unitLiteral);
+            literals.insert(unitLiteral);
         }
         inline void addLiteral(int x){
             if(x<0){
@@ -25,12 +29,15 @@ class clause{
         }
 };
 class clauseSet{
+    private:
+        int numClauses,numLiterals;    
+        vector <bool> visited;
+
     public:
         vector <clause> clauses;
         vector <unordered_set<int>* > literalMap;
         vector <int> unitClauses;
-        vector <bool> visited;
-        int numClauses,numLiterals;                
+
         clauseSet(int numliteral,int numclause):numClauses(numclause),numLiterals(numliteral){      
             clauses.reserve(numClauses+5);
             literalMap.reserve(2*(numLiterals+5));
@@ -41,6 +48,10 @@ class clauseSet{
                 return;
             else{
                 clauses.push_back(cs); // 1 based indexing for literal map
+                if(cs.literals.size() == 1){
+                    unitClauses.push_back(clauses.size());
+                }
+
                 for(auto lit:cs.literals){
                     if(!visited[lit])
                         literalMap[lit] = new unordered_set<int>;
@@ -50,11 +61,14 @@ class clauseSet{
             }
         }
         void pureLiteralElim(){
-            for(int i=1;i<=2*numLiterals;i+=2){
-                if(!literalMap[i]->empty() && literalMap[i+1]->empty())
+            for(int i=1;i<2*numLiterals;i+=2){
+                if(literalMap[i]!=NULL && literalMap[i+1]==NULL){
                     addClause(clause(i));
-                else if(literalMap[i]->empty() && !literalMap[i+1]->empty())
+                }
+                else if(literalMap[i]==NULL && literalMap[i+1]!=NULL){
                     addClause(clause(i+1));
+                }
+                //cout<<i<<" "<<literalMap[i]->empty()<<" "<<literalMap[i+1]->empty()<<endl;
             }
         }
         void print(){
@@ -96,9 +110,12 @@ int main(){
         }    
     }
     #ifdef DEBUG
-    clauses.print();
-    clauses.printLiteral(2);
+    clauses.pureLiteralElim();
+    for(auto k:clauses.unitClauses)
+        cout<<k<<" ";
+    cout<<endl;
+   clauses.print();
     #endif
-    
+
     return 0;
 }
