@@ -43,7 +43,7 @@ class clauseSet{
             visited.reserve(2*(numLiterals)+5);
             clauses.push_back(clause(0));
         }
-        void addClause(clause cs,bool set=true){
+        void addClause(clause cs,bool set){
             if(cs.tautology)
                 return;
             else{
@@ -75,10 +75,10 @@ class clauseSet{
         void pureLiteralElim(){
             for(int i=1;i<2*numLiterals;i+=2){
                 if(literalMap.count(i) && literalMap.count(i+1)==0){
-                    addClause(clause(i));
+                    addClause(clause(i),false);
                 }
                 else if(literalMap.count(i+1) && literalMap.count(i)==0){
-                    addClause(clause(i+1));
+                    addClause(clause(i+1),false);
                 }
             }
         }
@@ -183,7 +183,7 @@ int main(){
             clause cl;
             for(auto literal:input)
                 cl.addLiteral(literal);
-            clauses.addClause(cl);
+            clauses.addClause(cl,true);
             input.clear();
         }else{
             input.push_back(inp);
