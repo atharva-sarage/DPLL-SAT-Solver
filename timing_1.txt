@@ -1,0 +1,251 @@
+lver$ bash test.sh 
+
+real	0m22.488s
+user	0m22.466s
+sys	0m0.020s
+done, ./tests/jnh/jnh10.cnf 
+
+real	0m3.874s
+user	0m3.865s
+sys	0m0.008s
+done, ./tests/jnh/jnh11.cnf 
+
+real	0m0.377s
+user	0m0.369s
+sys	0m0.008s
+done, ./tests/jnh/jnh12.cnf 
+
+real	0m0.928s
+user	0m0.920s
+sys	0m0.008s
+done, ./tests/jnh/jnh13.cnf 
+
+real	0m0.261s
+user	0m0.261s
+sys	0m0.000s
+done, ./tests/jnh/jnh14.cnf 
+
+real	0m7.617s
+user	0m7.608s
+sys	0m0.008s
+done, ./tests/jnh/jnh15.cnf 
+
+real	1m27.214s
+user	1m27.173s
+sys	0m0.012s
+done, ./tests/jnh/jnh16.cnf 
+
+real	0m0.213s
+user	0m0.204s
+sys	0m0.008s
+done, ./tests/jnh/jnh17.cnf 
+
+real	0m4.460s
+user	0m4.452s
+sys	0m0.008s
+done, ./tests/jnh/jnh18.cnf 
+
+real	0m1.038s
+user	0m1.038s
+sys	0m0.000s
+done, ./tests/jnh/jnh19.cnf 
+
+real	0m1.486s
+user	0m1.477s
+sys	0m0.008s
+done, ./tests/jnh/jnh1.cnf 
+
+real	0m0.203s
+user	0m0.199s
+sys	0m0.004s
+done, ./tests/jnh/jnh201.cnf 
+
+real	0m2.197s
+user	0m2.184s
+sys	0m0.004s
+done, ./tests/jnh/jnh202.cnf 
+
+real	0m3.937s
+user	0m3.933s
+sys	0m0.004s
+done, ./tests/jnh/jnh203.cnf 
+
+real	0m18.432s
+user	0m18.420s
+sys	0m0.012s
+done, ./tests/jnh/jnh204.cnf 
+
+real	0m11.025s
+user	0m11.020s
+sys	0m0.004s
+done, ./tests/jnh/jnh205.cnf 
+
+real	0m3.912s
+user	0m3.912s
+sys	0m0.000s
+done, ./tests/jnh/jnh206.cnf 
+
+real	0m9.281s
+user	0m9.281s
+sys	0m0.000s
+done, ./tests/jnh/jnh207.cnf 
+
+real	0m35.637s
+user	0m35.629s
+sys	0m0.004s
+done, ./tests/jnh/jnh208.cnf 
+
+real	0m0.224s
+user	0m0.212s
+sys	0m0.012s
+done, ./tests/jnh/jnh209.cnf 
+
+real	0m19.612s
+user	0m19.595s
+sys	0m0.016s
+done, ./tests/jnh/jnh20.cnf 
+
+real	0m8.398s
+user	0m8.390s
+sys	0m0.008s
+done, ./tests/jnh/jnh210.cnf 
+
+real	0m1.279s
+user	0m1.275s
+sys	0m0.004s
+done, ./tests/jnh/jnh211.cnf 
+
+real	0m1.488s
+user	0m1.484s
+sys	0m0.004s
+done, ./tests/jnh/jnh212.cnf 
+
+real	0m2.218s
+user	0m2.210s
+sys	0m0.008s
+done, ./tests/jnh/jnh213.cnf 
+
+real	0m0.895s
+user	0m0.886s
+sys	0m0.000s
+done, ./tests/jnh/jnh214.cnf 
+
+real	0m0.521s
+user	0m0.520s
+sys	0m0.000s
+done, ./tests/jnh/jnh215.cnf 
+
+real	0m23.263s
+user	0m23.222s
+sys	0m0.016s
+done, ./tests/jnh/jnh216.cnf 
+
+real	0m6.607s
+user	0m6.595s
+sys	0m0.012s
+done, ./tests/jnh/jnh217.cnf 
+
+real	0m0.370s
+user	0m0.366s
+sys	0m0.004s
+done, ./tests/jnh/jnh218.cnf 
+
+real	0m10.646s
+user	0m10.646s
+sys	0m0.000s
+done, ./tests/jnh/jnh219.cnf 
+
+real	0m11.082s
+user	0m11.046s
+sys	0m0.016s
+done, ./tests/jnh/jnh220.cnf 
+
+real	0m4.415s
+user	0m4.398s
+sys	0m0.004s
+done, ./tests/jnh/jnh2.cnf 
+
+real	0m16.916s
+user	0m16.883s
+sys	0m0.016s
+done, ./tests/jnh/jnh301.cnf 
+
+real	0m0.259s
+user	0m0.259s
+sys	0m0.000s
+done, ./tests/jnh/jnh302.cnf 
+
+real	0m8.311s
+user	0m8.277s
+sys	0m0.008s
+done, ./tests/jnh/jnh303.cnf 
+
+real	0m1.877s
+user	0m1.844s
+sys	0m0.016s
+done, ./tests/jnh/jnh304.cnf 
+
+real	0m1.596s
+user	0m1.592s
+sys	0m0.004s
+done, ./tests/jnh/jnh305.cnf 
+
+real	0m13.170s
+user	0m13.162s
+sys	0m0.008s
+done, ./tests/jnh/jnh306.cnf 
+
+real	0m4.405s
+user	0m4.397s
+sys	0m0.008s
+done, ./tests/jnh/jnh307.cnf 
+
+real	0m6.667s
+user	0m6.663s
+sys	0m0.004s
+done, ./tests/jnh/jnh308.cnf 
+
+real	0m1.149s
+user	0m1.145s
+sys	0m0.004s
+done, ./tests/jnh/jnh309.cnf 
+
+real	0m0.172s
+user	0m0.171s
+sys	0m0.000s
+done, ./tests/jnh/jnh310.cnf 
+
+real	0m7.611s
+user	0m7.611s
+sys	0m0.000s
+done, ./tests/jnh/jnh3.cnf 
+
+real	0m3.057s
+user	0m3.053s
+sys	0m0.004s
+done, ./tests/jnh/jnh4.cnf 
+
+real	0m12.554s
+user	0m12.545s
+sys	0m0.008s
+done, ./tests/jnh/jnh5.cnf 
+
+real	0m23.852s
+user	0m23.839s
+sys	0m0.012s
+done, ./tests/jnh/jnh6.cnf 
+
+real	0m2.260s
+user	0m2.256s
+sys	0m0.004s
+done, ./tests/jnh/jnh7.cnf 
+
+real	0m3.136s
+user	0m3.121s
+sys	0m0.004s
+done, ./tests/jnh/jnh8.cnf 
+
+real	0m2.795s
+user	0m2.791s
+sys	0m0.004s
+done, ./tests/jnh/jnh9.cnf 

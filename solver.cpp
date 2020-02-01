@@ -43,7 +43,7 @@ class clauseSet{
             visited.reserve(2*(numLiterals)+5);
             clauses.push_back(clause(0));
         }
-        void addClause(clause cs){
+        void addClause(clause cs,bool set=true){
             if(cs.tautology)
                 return;
             else{
@@ -51,22 +51,24 @@ class clauseSet{
                 if(cs.literals.size() == 1){
                     unitClauses.push_back(clauses.size()-1);
                 }
-                for(auto lit:cs.literals){
-                    literalMap.insert(make_pair(lit,clauses.size()-1));
+                if(set){
+                    for(auto lit:cs.literals){
+                        literalMap.insert(make_pair(lit,clauses.size()-1));
+                    }
                 }
             }
         }
         void removeLastAddedUnitClause(){
             clause remclause=clauses.back();
-            int literal=*(remclause.literals.begin());
-            auto iterpair = literalMap.equal_range(literal);
-            auto it = iterpair.first;
-            for (; it != iterpair.second; ++it) {
-               if (it->second == literal) { 
-                    literalMap.erase(it);
-                    break;
-                }
-            }
+            // int literal=*(remclause.literals.begin());
+            // auto iterpair = literalMap.equal_range(literal);
+            // auto it = iterpair.first;
+            // for (; it != iterpair.second; ++it) {
+            //    if (it->second == literal) { 
+            //         literalMap.erase(it);
+            //         break;
+            //     }
+            // }
             unitClauses.pop_back();
             clauses.pop_back();
         }
@@ -150,12 +152,12 @@ class solver{
             int pivot = *(done.begin());
             int selectedLiteral = 2*pivot;
             //cout<<pivot<<"??"<<endl;
-            clauseset.addClause(clause(selectedLiteral));           
+            clauseset.addClause(clause(selectedLiteral),false);           
             if(dpll(clauseset,assigned,done,satisfiedClauses))
                 return true;
             //here();
             clauseset.removeLastAddedUnitClause();
-            clauseset.addClause(clause(complement(selectedLiteral)));
+            clauseset.addClause(clause(complement(selectedLiteral)),false);
             return dpll(clauseset,assigned,done,satisfiedClauses);            
         }
     // assignment.reserve(2*(numLiterals+5));
