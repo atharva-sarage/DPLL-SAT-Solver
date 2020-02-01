@@ -51,11 +51,24 @@ class clauseSet{
                 if(cs.literals.size() == 1){
                     unitClauses.push_back(clauses.size()-1);
                 }
-
                 for(auto lit:cs.literals){
                     literalMap.insert(make_pair(lit,clauses.size()-1));
                 }
             }
+        }
+        void removeLastAddedUnitClause(){
+            clause remclause=clauses.back();
+            int literal=*(remclause.literals.begin());
+            auto iterpair = literalMap.equal_range(literal);
+            auto it = iterpair.first;
+            for (; it != iterpair.second; ++it) {
+               if (it->second == literal) { 
+                    literalMap.erase(it);
+                    break;
+                }
+            }
+            unitClauses.pop_back();
+            clauses.pop_back();
         }
         void pureLiteralElim(){
             for(int i=1;i<2*numLiterals;i+=2){
@@ -85,31 +98,56 @@ int complement(int i){
     else
         return i-1;
 }
+int getvariable(int i){
+    if(i&1)
+        return (i+1)/2;
+    else
+        return i/2;
+}
 class solver{
-    // vector <bool> assignment; 
+    private:
+        int totalClauses,totalVariables;
     public: 
-        void dpll(clauseSet clauseset,vector<bool>assignment){ 
-            for(auto unitClause:clauseset.unitClauses){
+        solver(int variables,int clauses):totalClauses(clauses),totalVariables(variables){}
+        bool dpll(clauseSet clauseset,unordered_set<int>assigned,unordered_set<int>done,int satisfiedClauses){ 
+
+                //unit propogation
+
+            for(int i=0;i<clauseset.unitClauses.size();i++){
+                auto unitClause=clauseset.unitClauses[i];
                 int unitLiteral=*((clauseset.clauses[unitClause].literals).begin());
-                // cout<<unitLiteral<<clauseset.literalMap[2]->size()<<endl;
-                cout<<unitLiteral<<" "<<clauseset.literalMap.count(unitLiteral)<<"???"<<endl;
+                assigned.insert(unitLiteral);
+                done.erase(getvariable(unitLiteral));
                 auto it = clauseset.literalMap.equal_range(unitLiteral); 
                 for(auto clauseNum=it.first;clauseNum!=it.second;++clauseNum){
-                    clauseset.clauses[clauseNum->second].sat=true;
-                    cout<<clauseNum->second<<endl;
+                    if(!clauseset.clauses[clauseNum->second].sat){
+                        clauseset.clauses[clauseNum->second].sat=true;
+                        satisfiedClauses++;
+                        if(satisfiedClauses==totalClauses)
+                            return true;
+                    }
                 }
-                // here();
                 int compUnitLiteral=complement(unitLiteral);
                 it = clauseset.literalMap.equal_range(compUnitLiteral); 
                 for(auto clauseNum=it.first;clauseNum!=it.second;++clauseNum){
-                    cout<<"????????????????????\n";
                     clauseset.clauses[clauseNum->second].literals.erase(compUnitLiteral);
                     if(clauseset.clauses[clauseNum->second].literals.size()==1 && clauseset.clauses[clauseNum->second].sat==false)
                         clauseset.unitClauses.push_back(clauseNum->second);
                     else if(clauseset.clauses[clauseNum->second].literals.size()==0){
                         cout<<"UNSATISFIABLE"<<endl;
+                        return false;            
                     }
-                }
+                }                
+                // chose pivot element implement heuristic here
+                int pivot = *(done.begin());
+                clauseset.addClause(clause(2*pivot));
+                clauseset.removeLastAddedUnitClause();
+                if(dpll(clauseset,assigned,done,satisfiedClauses)==false)
+                    return true;
+                clauseset.addClause(clause(2*pivot));
+                return dpll(clauseset,assigned,done,satisfiedClauses);
+
+
             }
         }
     // assignment.reserve(2*(numLiterals+5));
@@ -124,6 +162,10 @@ int main(){
         cin>>ch;
     }
     cin>>str>>n>>m;
+    unordered_set<int>done;
+    unordered_set<int>assigned;
+    for(int i=1;i<=n;i++)
+        done.insert(i);
     clauseSet clauses(n,m);
     vector<int>input;
     while(cin>>inp){
@@ -138,9 +180,10 @@ int main(){
         }    
     }
     clauses.pureLiteralElim();
-    solver dpllsolver;
+    solver dpllsolver(n,m);
     vector<bool>assignment;
-    dpllsolver.dpll(clauses,assignment);
+    assignment.reserve(2*n+5);
+    cout<<dpllsolver.dpll(clauses,assigned,done,0)<<endl;
     #ifdef DEBUG
     for(auto k:clauses.unitClauses)
         cout<<k<<" ";
