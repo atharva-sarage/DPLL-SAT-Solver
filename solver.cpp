@@ -96,14 +96,14 @@ inline int getvariable(int i){
     else
         return i/2;
 }
-unordered_set<int>finalAssignment;
+vector<bool>finalAssignment;
 class solver{
     private:
         int totalClauses,totalVariables;
         clauseSet* clauseset;
     public: 
         solver(int variables,int clauses,clauseSet* cs):totalClauses(clauses),totalVariables(variables),clauseset(cs){}
-        bool dpll(vector<int>unitClauses,vector<int>countClause,vector<bool>satClause,unordered_set<int>assigned,unordered_set<int>done,int satisfiedClauses){ 
+        bool dpll(vector<int>unitClauses,vector<int>countClause,vector<bool>satClause,vector<bool>assigned,unordered_set<int>done,int satisfiedClauses){ 
                 //unit propogation 
             bool visited[2*totalVariables+5];
             memset(visited,false,sizeof(visited));
@@ -112,7 +112,7 @@ class solver{
                 if(visited[unitLiteral])
                     continue;
                 visited[unitLiteral]=true;
-                assigned.insert(unitLiteral);              
+                assigned[unitLiteral]=true;;              
                 done.erase(getvariable(unitLiteral));
                 //clauseset->printLiteral(unitLiteral);
                 //auto it = clauseset->literalMap.equal_range(unitLiteral); 
@@ -137,7 +137,7 @@ class solver{
                         countClause[clauseNum]--;
                         if(countClause[clauseNum]==1 && satClause[clauseNum]==false){
                             for(auto lit: clauseset->clauses[clauseNum].literals){
-                                if(assigned.find(lit)==assigned.end() && assigned.find(complement(lit))==assigned.end()){
+                                if(!assigned[lit] && !assigned[complement(lit)]){
                                     unitClauses.push_back(lit);
                                 }
                             }
@@ -149,6 +149,10 @@ class solver{
                 }  
             }       
             unitClauses.clear();    
+            int temp=0;
+            for(int i=1;i<totalVariables;i++){
+                temp++;
+            }
             int pivot = *(done.begin());
             int selectedLiteral = 2*pivot;
             unitClauses.push_back(selectedLiteral);
@@ -170,7 +174,7 @@ int main(){
     }
     cin>>str>>n>>m;
     unordered_set<int>done;
-    unordered_set<int>assigned;   
+    vector<bool>assigned(2*n+5);
     vector <int> vec;
     for(int i=1;i<=n;i++)
         vec.push_back(i);
