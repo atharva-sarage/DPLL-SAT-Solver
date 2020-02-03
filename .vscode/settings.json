@@ -9,6 +9,8 @@
         "list": "cpp",
         "string": "cpp",
         "vector": "cpp",
-        "forward_list": "cpp"
+        "forward_list": "cpp",
+        "string_view": "cpp",
+        "iostream": "cpp"
     }
 }
