@@ -3,6 +3,7 @@ tests
 solver2.cpp
 solver3.cpp
 solver4.cpp
+checker2.sh
 *.txt
 out*
 *.out

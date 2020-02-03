@@ -185,8 +185,18 @@ int main(){
     }
     clauses.pureLiteralElim();
     solver dpllsolver(&clauses);
-    cout<<dpllsolver.dpll(clauses.unitClauses,clauses.countClause,clauses.satClause,assigned,0)<<endl;
-    for(auto k:finalAssignment)
-        cout<<k<<" ";
+    int ret=dpllsolver.dpll(clauses.unitClauses,clauses.countClause,clauses.satClause,assigned,0);
+    if(!ret)
+        cout<<"UNSAT\n";
+    else{
+        cout<<"SAT\n";
+        for(int i=1;i<=totalVariables*2;i+=2){
+            if(finalAssignment[i])
+                cout<<-1*getvariable(i)<<" ";              
+            else
+                cout<<getvariable(i)<<" ";     
+        }
+        cout<<"\n";        
+    }
     return 0; 
 }
