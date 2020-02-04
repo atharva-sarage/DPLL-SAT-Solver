@@ -106,7 +106,6 @@ class solver{
                 assigned[unitLiteral]=true;;              
                 if(clauseset->literalMap2[unitLiteral]->size()>0){
                     for(auto clauseNum:*(clauseset->literalMap2[unitLiteral])){
-                        //cout<<clauseNum<<endl;
                         if(!satClause[clauseNum]){
                             satClause[clauseNum]=true;
                             if(clauseNum <= totalClauses)
@@ -138,18 +137,16 @@ class solver{
             unitClauses.clear();    
             int temp=0;
             int selectedLiteral;
-            // for(int i=1;i<=2*totalVariables;i+=2){ // first unassigned
-            //     if(assigned[i]==false && assigned[i+1]==false)
-            //         {selectedLiteral=i;break;}
-            // }
+            pair<int,int>selectedClause={1e6,0};
             for(int i=1;i<=totalClauses;i++){
-                if(satClause[i])continue;
-                else {
-                    for(auto lit: clauseset->clauses[i].literals2){
-                        if(!assigned[lit] && !assigned[complement(lit)])
-                            {selectedLiteral=lit;break;}
-                    }
-                }
+                if(satClause[i])
+                    continue;
+                else
+                    selectedClause=min(selectedClause,{countClause[i],i});                
+            }
+            for(auto lit: clauseset->clauses[selectedClause.second].literals2){
+                if(!assigned[lit] && !assigned[complement(lit)])
+                    {selectedLiteral=lit;break;}
             }
             int random=rand()%2;
             if(random%2==0)
