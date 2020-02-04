@@ -138,9 +138,18 @@ class solver{
             unitClauses.clear();    
             int temp=0;
             int selectedLiteral;
-            for(int i=1;i<=2*totalVariables;i+=2){ // first unassigned
-                if(assigned[i]==false && assigned[i+1]==false)
-                    {selectedLiteral=i;break;}
+            // for(int i=1;i<=2*totalVariables;i+=2){ // first unassigned
+            //     if(assigned[i]==false && assigned[i+1]==false)
+            //         {selectedLiteral=i;break;}
+            // }
+            for(int i=1;i<=totalClauses;i++){
+                if(satClause[i])continue;
+                else {
+                    for(auto lit: clauseset->clauses[i].literals2){
+                        if(!assigned[lit] && !assigned[complement(lit)])
+                            {selectedLiteral=lit;break;}
+                    }
+                }
             }
             int random=rand()%2;
             if(random%2==0)
@@ -186,17 +195,18 @@ int main(){
     clauses.pureLiteralElim();
     solver dpllsolver(&clauses);
     int ret=dpllsolver.dpll(clauses.unitClauses,clauses.countClause,clauses.satClause,assigned,0);
-    if(!ret)
-        cout<<"UNSAT\n";
-    else{
-        cout<<"SAT\n";
-        for(int i=1;i<=totalVariables*2;i+=2){
-            if(finalAssignment[i])
-                cout<<-1*getvariable(i)<<" ";              
-            else
-                cout<<getvariable(i)<<" ";     
-        }
-        cout<<"\n";        
-    }
+    cout<<ret<<endl;
+    // if(!ret)
+    //     cout<<"UNSAT\n";
+    // else{
+    //     cout<<"SAT\n";
+    //     for(int i=1;i<=totalVariables*2;i+=2){
+    //         if(finalAssignment[i])
+    //             cout<<-1*getvariable(i)<<" ";              
+    //         else
+    //             cout<<getvariable(i)<<" ";     
+    //     }
+    //     cout<<"\n";        
+    // }
     return 0; 
 }

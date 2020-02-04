@@ -1,9 +1,0 @@
-dump
-tests
-solver2.cpp
-solver3.cpp
-solver4.cpp
-*.txt
-out*
-*.out
-
