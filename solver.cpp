@@ -137,17 +137,31 @@ class solver{
             unitClauses.clear();    
             int temp=0;
             int selectedLiteral;
-            pair<int,int>selectedClause={1e6,0};
-            for(int i=1;i<=totalClauses;i++){
-                if(satClause[i])
-                    continue;
-                else
-                    selectedClause=min(selectedClause,{countClause[i],i});                
+
+            // heuristic selection is giving high performance improvements
+            
+            //smallestClauseHeuristic
+            // pair<int,int>selectedClause={1e6,0};
+            // for(int i=1;i<=totalClauses;i++){
+            //     if(satClause[i])
+            //         continue;
+            //     else
+            //         selectedClause=min(selectedClause,{countClause[i],i});                
+            // }
+            // for(auto lit: clauseset->clauses[selectedClause.second].literals2){
+            //     if(!assigned[lit] && !assigned[complement(lit)])
+            //         {selectedLiteral=lit;break;}
+            // }
+
+            //DLCS Heuristic
+            pair<int,int>selectedVariable={0,0};
+            for(int i=1;i<=2*totalVariables;i+=2){
+                if(!assigned[i] && !assigned[i+1]){
+                    selectedVariable=max(selectedVariable,{clauseset->literalMap2[i]->size()+clauseset->literalMap2[i+1]->size(),i});
+                    //selectedVariable=max(selectedVariable,{max(clauseset->literalMap2[i]->size(),clauseset->literalMap2[i+1]->size()),i});                    
+                }
             }
-            for(auto lit: clauseset->clauses[selectedClause.second].literals2){
-                if(!assigned[lit] && !assigned[complement(lit)])
-                    {selectedLiteral=lit;break;}
-            }
+            selectedLiteral=selectedVariable.second;
             int random=rand()%2;
             if(random%2==0)
                 selectedLiteral=complement(selectedLiteral);
