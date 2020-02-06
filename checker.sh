@@ -4,8 +4,8 @@ mkdir dump
 #CBS_k3_n100_m403_b10
 #UUF200.860.1000
 g++ solver.cpp --std=c++11
-for filename in ./tests/CBS_k3_n100_m403_b10/*.cnf; do   
-    #./a.out < $filename &>> ./dump/out30
+for filename in ./tests/pigeon-hole/*.cnf; do   
+    #./a.out < $filename &>> ./dump/out31
     time ./a.out < $filename
     # #time ./brute.out < "$filename" >> dump/out6
     echo "$filename"
