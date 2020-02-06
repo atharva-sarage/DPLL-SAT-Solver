@@ -11,6 +11,7 @@
         "vector": "cpp",
         "forward_list": "cpp",
         "string_view": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "array": "cpp"
     }
 }
