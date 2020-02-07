@@ -1,23 +1,26 @@
+/******************************************
+*    AUTHOR:         Atharva Sarage       *
+*    INSTITUITION:   IIT HYDERABAD        *
+******************************************/
 #include<bits/stdc++.h>
 using namespace std;
 // Global Variables for storing finalAssignment and totalNumberofClauses and Variables
 vector<bool>finalAssignment;
-bool* visited;
 int totalClauses,totalVariables; // These are initialized in main()
-
+vector<pair<int,int>> order;
 /**
  * Class for representing a Clause in the input
  */
 class clause{
     private:
-        bool tautology=false; // This is true when a clause contains when a literal and its negation.
+        bool tautology=false; // This is true when a clause contains a literal and its negation.
         int totalLiterals=0;  // Count of total number of literals in the clause
     public:
         vector<int>literals;  // This vector stores all the literals 
         clause(){}            // default constructor
-        // Create a clause object with one iteral 
+        // Create a clause object with one literal 
         clause(int unitLiteral){
-            literals.emplace_back(unitLiteral);
+            literals.emplace_back(unitLiteral); // emplace_back is faster than push_back
         }
         /**
         * addLiteral function adds a literal to the clause
@@ -54,7 +57,7 @@ class clause{
  * class clauseSetCurrentState
  * It stores count of unsatified literals in each clause,
  * whether a clause is satisfied and 
- * stores literals of clauses that became UnitClauses.(clauses containing only one unsatisfied literal)
+ * stores literals of clauses that are UnitClauses.(clauses containing only one unsatisfied literal)
  */
 class clauseSetCurrentState{
     public:
@@ -157,24 +160,26 @@ inline int getvariable(int i){
 }
 /**
  * SATsolver Class
- * Stores a pointer to clauseset object to access literalMap and all the clauses * 
+ * Stores a pointer to clauseset object to access literalMap and all the clauses  
  */
 class SATsolver{
     private:        
-        clauseSet* clauseset;
+        clauseSet* clauseset; // a pointer to clauseset object
     public: 
         SATsolver(clauseSet* cs):clauseset(cs){} // constructor which takes a pointer to clauseset
         /**
-         * dpll function which takes argument. All arguments are passed as refrences.
+         * dpll function which takes argument. All arguments are passed as refrences except
+         * satisfiedClauses which is an int
          * currentState object(count of unsatisfied literal, which clauses are yet to be satisfied),
          * Current assignment of the literals and 
-         * number of satisfied clauses(for termination)         * 
+         * number of satisfied clauses(for termination)         
          */
-        bool dpll(clauseSetCurrentState& state,vector<bool>&assigned,int satisfiedClauses){ 
+        bool dpll(clauseSetCurrentState& state,vector<bool>&assigned,int satisfiedClauses,int startLiteral){ 
 
-            /////////////UNIT PROPOGATION START/////////////////
+            /////////////UNIT PROPOGATION STARTS/////////////////
+            
+            // to keep track which unitLiterals are processed            
             vector <bool> visited(2*totalVariables+5);
-            //bool visited[2*totalVariables+5]={false};   // to keep track which unitLiterals are processed
             for(int i=0;i<state.unitLiterals.size();i++){
                 int unitLiteral=state.unitLiterals[i];
                 if(visited[unitLiteral]) // if processed then continue;
@@ -245,13 +250,16 @@ class SATsolver{
              * literal satifying shortest clauses, first unasigned literal 
              * and randomly selecting literal.             * 
              */
-            pair<int,int>selectedVariable={0,0};
-            for(int i=1;i<=2*totalVariables;i+=2){
-                if(!assigned[i] && !assigned[i+1]){ // both the literals are unassigned
-                    selectedVariable=max(selectedVariable,{clauseset->literalClauseMap[i]->size()+clauseset->literalClauseMap[i+1]->size(),i});
+            //pair<int,int>selectedVariable={0,0};
+            for(int i=startLiteral;i<=totalVariables;i++){
+                if(!assigned[order[i].second] && !assigned[order[i].second+1]){ // both the literals are unassigned
+                    //selectedVariable=max(selectedVariable,{clauseset->literalClauseMap[i]->size()+clauseset->literalClauseMap[i+1]->size(),i});
+                    selectedLiteral=order[i].second;
+                    startLiteral=i+1;
+                    break;
                 }
             }
-            selectedLiteral=selectedVariable.second;               
+            // selectedLiteral=selectedVariable.second;               
             int random=rand()%2;
             // randomly choose either positive or negated literal
             if(random%2==0)
@@ -273,7 +281,7 @@ class SATsolver{
             // create a copy of assigned vector
             vector<bool>duplicateAssigned=assigned;
             // 1st DPLL call
-            if(dpll(duplicateState,duplicateAssigned,satisfiedClauses))
+            if(dpll(duplicateState,duplicateAssigned,satisfiedClauses,startLiteral))
                 return true;
    
             // remove the literal that was selected earlier and instead 
@@ -281,12 +289,12 @@ class SATsolver{
             state.unitLiterals.pop_back();
             state.unitLiterals.emplace_back(complement(selectedLiteral));
             // 2nd DPLL call
-            return dpll(state,assigned,satisfiedClauses);            
+            return dpll(state,assigned,satisfiedClauses,startLiteral);            
         }
 };
 int main(){
     ios::sync_with_stdio(0);cin.tie(0);cout.tie(0); // fast IO
-    srand(time(NULL));
+    srand(time(NULL)); // seed
     string strOneLine,str;
     int inp;
     char ch; 
@@ -297,7 +305,6 @@ int main(){
         cin>>ch;
     }
     cin>>str>>totalVariables>>totalClauses;
-    visited= new bool[2*totalVariables+5]();
     clauseSet clauses; // clauseset object
     vector<int>input; // stores literals
     while(cin>>inp){
@@ -314,11 +321,15 @@ int main(){
     clauses.pureLiteralElim(); // do pure literal elimination
     SATsolver dpllsolver(&clauses); // solver object
     vector<bool>assigned(2*totalVariables+5); // assigned vector initially all false
-    
+    order.push_back({1e6,1e6});
+    for(int i=1;i<=2*totalVariables;i+=2){
+        order.push_back({clauses.literalClauseMap[i]->size()+clauses.literalClauseMap[i+1]->size(),i});
+    }
+    sort(order.begin(),order.end(),greater<pair<int,int>>());
     // CALL TO SOLVER
-    int ret=dpllsolver.dpll(clauses.state,assigned,0); 
+    int ret=dpllsolver.dpll(clauses.state,assigned,0,1); 
     if(!ret)
-        cout<<"UNSAT";
+        cout<<"UNSAT\n";
     else{
         cout<<"SAT\n";
         for(int i=1;i<=totalVariables*2;i+=2){
@@ -327,7 +338,7 @@ int main(){
             else
                 cout<<getvariable(i)<<" ";     
         }
-        cout<<"0";      
+        cout<<"0\n";      
         // Checker loop that assignment output is valid assignment  
         // for(auto k:clauses.clauses){
         //     bool set=false;

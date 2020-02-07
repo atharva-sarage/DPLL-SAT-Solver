@@ -3,12 +3,10 @@ mkdir dump
 #UUF175.753.100
 #CBS_k3_n100_m403_b10
 #UUF200.860.1000
-g++ solver.cpp --std=c++11
-for filename in ./tests/pigeon-hole/*.cnf; do   
-    #./a.out < $filename &>> ./dump/out31
+g++ CS17BTECH11005-sat.cpp --std=c++11
+for filename in ./tests/UUF175.753.100/*.cnf; do   
+    #./a.out < $filename >> ./dump/out.txt
     time ./a.out < $filename
-    # #time ./brute.out < "$filename" >> dump/out6
-    echo "$filename"
-    # echo "---------------------------" >>  dump/out7    
+    #echo "$filename"
 done
-#diff -w correctAns.txt ./dump/out30
+# diff -w correctAns.txt ./dump/out.txt
