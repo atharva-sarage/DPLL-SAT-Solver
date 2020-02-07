@@ -64,6 +64,7 @@ class clauseSetCurrentState{
         vector <int> countClause;   // stores count of unsatified literals
         vector <bool> isSatisfied;  //whether a clause is satisfied
         vector <int> unitLiterals;  // stores literals of all unitClauses for unitPropogation
+        vector <int> countLiteral;
     clauseSetCurrentState(){        // default constructor
       init();
     }
@@ -72,6 +73,8 @@ class clauseSetCurrentState{
         countClause=state.countClause;
         isSatisfied=state.isSatisfied;
         unitLiterals=state.unitLiterals;
+        for(int i=1;i<=2*totalVariables;i++)
+            countLiteral[i]=state.countLiteral[i];
     }
     /*
      * We reserve space well in advance so that vector does not resize as vector
@@ -79,7 +82,8 @@ class clauseSetCurrentState{
      */
     void init(){
         countClause.reserve(totalClauses+5); 
-        isSatisfied.reserve(totalClauses+5);          
+        isSatisfied.reserve(totalClauses+5);   
+        countLiteral.reserve(2*totalVariables+5);
         // both isSatisfied and countClause are 1 indexed so 
         // we add value at zero index. this is never accessed                           
         isSatisfied.emplace_back(false);
@@ -120,6 +124,7 @@ class clauseSet{
                     state.unitLiterals.emplace_back(cs.literals.front());
                 for(auto lit:cs.literals){ // update the literal clause map
                     literalClauseMap[lit]->emplace_back(state.countClause.size()-1);
+                    state.countLiteral[lit]++;
                 }
             }
         }
@@ -174,7 +179,7 @@ class SATsolver{
          * Current assignment of the literals and 
          * number of satisfied clauses(for termination)         
          */
-        bool dpll(clauseSetCurrentState& state,vector<bool>&assigned,int satisfiedClauses,int startLiteral){ 
+        bool dpll(clauseSetCurrentState& state,vector<bool>&assigned,int satisfiedClauses){ 
 
             /////////////UNIT PROPOGATION STARTS/////////////////
             
@@ -193,6 +198,8 @@ class SATsolver{
                             state.isSatisfied[clauseNum]=true; // mark true
                             // if it was one of the original clauses which have indices from [1..totalClauses] 
                             // then increment satisfiedClauses
+                            for(auto lit: clauseset->clauses[clauseNum].literals)
+                                state.countLiteral[lit]--;                
                             if(clauseNum <= totalClauses)  
                                 satisfiedClauses++;
                             // Check whether all clasuses are satisfied if yes WE ARE DONE!!!
@@ -205,6 +212,7 @@ class SATsolver{
                 }   
                 // Now we look at all the clauses where complement of this literal occurs   
                 int compUnitLiteral=complement(unitLiteral);  
+                state.countLiteral[compUnitLiteral]=0;
                 if(clauseset->literalClauseMap[compUnitLiteral]->size()>0){  
                     // iterate over all the clauses containing complement of that literal                       
                     for(auto clauseNum:*(clauseset->literalClauseMap[compUnitLiteral])){
@@ -250,16 +258,15 @@ class SATsolver{
              * literal satifying shortest clauses, first unasigned literal 
              * and randomly selecting literal.             * 
              */
-            //pair<int,int>selectedVariable={0,0};
-            for(int i=startLiteral;i<=totalVariables;i++){
-                if(!assigned[order[i].second] && !assigned[order[i].second+1]){ // both the literals are unassigned
-                    //selectedVariable=max(selectedVariable,{clauseset->literalClauseMap[i]->size()+clauseset->literalClauseMap[i+1]->size(),i});
-                    selectedLiteral=order[i].second;
-                    startLiteral=i+1;
-                    break;
+            int idx=-1,val=0;
+            for(int i=1;i<2*totalVariables;i+=2){
+                if(!assigned[i] && !assigned[i+1]){ // both the literals are unassigned
+                    if(state.countLiteral[i]+state.countLiteral[i+1]>val){
+                        idx=i;val=state.countLiteral[i]+state.countLiteral[i+1];
+                    }
                 }
             }
-            // selectedLiteral=selectedVariable.second;               
+            selectedLiteral=idx;      
             int random=rand()%2;
             // randomly choose either positive or negated literal
             if(random%2==0)
@@ -281,7 +288,7 @@ class SATsolver{
             // create a copy of assigned vector
             vector<bool>duplicateAssigned=assigned;
             // 1st DPLL call
-            if(dpll(duplicateState,duplicateAssigned,satisfiedClauses,startLiteral))
+            if(dpll(duplicateState,duplicateAssigned,satisfiedClauses))
                 return true;
    
             // remove the literal that was selected earlier and instead 
@@ -289,7 +296,7 @@ class SATsolver{
             state.unitLiterals.pop_back();
             state.unitLiterals.emplace_back(complement(selectedLiteral));
             // 2nd DPLL call
-            return dpll(state,assigned,satisfiedClauses,startLiteral);            
+            return dpll(state,assigned,satisfiedClauses);            
         }
 };
 int main(){
@@ -327,7 +334,7 @@ int main(){
     }
     sort(order.begin(),order.end(),greater<pair<int,int>>());
     // CALL TO SOLVER
-    int ret=dpllsolver.dpll(clauses.state,assigned,0,1); 
+    int ret=dpllsolver.dpll(clauses.state,assigned,0); 
     if(!ret)
         cout<<"UNSAT\n";
     else{

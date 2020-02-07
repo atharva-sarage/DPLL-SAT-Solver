@@ -61,14 +61,19 @@ class clauseSetCurrentState{
         vector <int> countClause;   // stores count of unsatified literals
         vector <bool> isSatisfied;  //whether a clause is satisfied
         vector <int> unitLiterals;  // stores literals of all unitClauses for unitPropogation
+        vector <int> countLiteral;
     clauseSetCurrentState(){        // default constructor
       init();
     }
     clauseSetCurrentState(const clauseSetCurrentState& state){  // copy constructor
         init();
+        //cout<<state.countLiteral.size()<<endl;
         countClause=state.countClause;
         isSatisfied=state.isSatisfied;
         unitLiterals=state.unitLiterals;
+        for(int i=1;i<=2*totalVariables;i++)
+            countLiteral[i]=state.countLiteral[i];
+        //cout<<countLiteral.size()<<" "<<state.countLiteral.size()<<endl;
     }
     /*
      * We reserve space well in advance so that vector does not resize as vector
@@ -76,7 +81,8 @@ class clauseSetCurrentState{
      */
     void init(){
         countClause.reserve(totalClauses+5); 
-        isSatisfied.reserve(totalClauses+5);          
+        isSatisfied.reserve(totalClauses+5);   
+        countLiteral.reserve(2*totalVariables+5);
         // both isSatisfied and countClause are 1 indexed so 
         // we add value at zero index. this is never accessed                           
         isSatisfied.emplace_back(false);
@@ -117,6 +123,7 @@ class clauseSet{
                     state.unitLiterals.emplace_back(cs.literals.front());
                 for(auto lit:cs.literals){ // update the literal clause map
                     literalClauseMap[lit]->emplace_back(state.countClause.size()-1);
+                    state.countLiteral[lit]++;
                 }
             }
         }
@@ -142,6 +149,7 @@ class clauseSet{
             for(auto k:(*literalClauseMap[lit]))
                 cout<<k<<" ";
             cout<<endl;
+            cout<<state.countLiteral[lit]<<endl;
         }
 };
 // Given a literal return its complement literal
@@ -311,6 +319,7 @@ int main(){
             input.emplace_back(inp); // add literal
         }    
     }
+    clauses.printLiteral(8);
     clauses.pureLiteralElim(); // do pure literal elimination
     SATsolver dpllsolver(&clauses); // solver object
     vector<bool>assigned(2*totalVariables+5); // assigned vector initially all false
