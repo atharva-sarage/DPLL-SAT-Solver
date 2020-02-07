@@ -7,7 +7,6 @@ using namespace std;
 // Global Variables for storing finalAssignment and totalNumberofClauses and Variables
 vector<bool>finalAssignment;
 int totalClauses,totalVariables; // These are initialized in main()
-vector<pair<int,int>> order;
 /**
  * Class for representing a Clause in the input
  */
@@ -55,16 +54,18 @@ class clause{
 };
 /**
  * class clauseSetCurrentState
+ * It maintains state of the clauses 
  * It stores count of unsatified literals in each clause,
  * whether a clause is satisfied and 
  * stores literals of clauses that are UnitClauses.(clauses containing only one unsatisfied literal)
+ * Count of each literal in clauses
  */
 class clauseSetCurrentState{
     public:
         vector <int> countClause;   // stores count of unsatified literals
         vector <bool> isSatisfied;  //whether a clause is satisfied
         vector <int> unitLiterals;  // stores literals of all unitClauses for unitPropogation
-        vector <int> countLiteral;
+        vector <int> countLiteral;  // stores count of each literal
     clauseSetCurrentState(){        // default constructor
       init();
     }
@@ -198,8 +199,21 @@ class SATsolver{
                             state.isSatisfied[clauseNum]=true; // mark true
                             // if it was one of the original clauses which have indices from [1..totalClauses] 
                             // then increment satisfiedClauses
-                            for(auto lit: clauseset->clauses[clauseNum].literals)
-                                state.countLiteral[lit]--;                
+                            for(auto lit: clauseset->clauses[clauseNum].literals){
+                                state.countLiteral[lit]--;   
+                                /**
+                                 * pure literal elimination
+                                 * once count of literal becomes zero and its complement
+                                 * count is greater than 0 and the corresponding variable 
+                                 * is not assigned (both itself and its complement)
+                                 * then we can add the complement literal to unit 
+                                 * literals list
+                                 */                           
+                                if(state.countLiteral[lit]==0 && state.countLiteral[complement(lit)]>0
+                                    && assigned[lit]==false && assigned[complement(lit)]==false)
+                                state.unitLiterals.emplace_back(complement(lit));  
+                            }   
+
                             if(clauseNum <= totalClauses)  
                                 satisfiedClauses++;
                             // Check whether all clasuses are satisfied if yes WE ARE DONE!!!
@@ -326,13 +340,10 @@ int main(){
         }    
     }
     clauses.pureLiteralElim(); // do pure literal elimination
+
     SATsolver dpllsolver(&clauses); // solver object
-    vector<bool>assigned(2*totalVariables+5); // assigned vector initially all false
-    order.push_back({1e6,1e6});
-    for(int i=1;i<=2*totalVariables;i+=2){
-        order.push_back({clauses.literalClauseMap[i]->size()+clauses.literalClauseMap[i+1]->size(),i});
-    }
-    sort(order.begin(),order.end(),greater<pair<int,int>>());
+    vector<bool>assigned(2*totalVariables+5); // assigned vector initially all false   
+
     // CALL TO SOLVER
     int ret=dpllsolver.dpll(clauses.state,assigned,0); 
     if(!ret)
@@ -346,16 +357,6 @@ int main(){
                 cout<<getvariable(i)<<" ";     
         }
         cout<<"0\n";      
-        // Checker loop that assignment output is valid assignment  
-        // for(auto k:clauses.clauses){
-        //     bool set=false;
-        //     for(auto lit: k.literals){
-        //         if(lit==0)
-        //             {set=true;break;}                         
-        //         set|=finalAssignment[lit];
-        //     }
-        //     assert(set==true);
-        // }
     }
     return 0; 
 }
