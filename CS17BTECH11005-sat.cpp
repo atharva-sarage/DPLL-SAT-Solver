@@ -70,21 +70,15 @@ class clauseSetCurrentState{
       init();
     }
     clauseSetCurrentState(const clauseSetCurrentState& state){  // copy constructor
-        init();
         countClause=state.countClause;
         isSatisfied=state.isSatisfied;
         unitLiterals=state.unitLiterals;
-        for(int i=1;i<=2*totalVariables;i++)
-            countLiteral[i]=state.countLiteral[i];
+        countLiteral=state.countLiteral;        
     }
-    /*
-     * We reserve space well in advance so that vector does not resize as vector
-     * resize is costly operation
-     */
     void init(){
-        countClause.reserve(totalClauses+5); 
-        isSatisfied.reserve(totalClauses+5);   
-        countLiteral.reserve(2*totalVariables+5);
+        // We need to update value at an index so we resize the vector so that we can access
+        // each index (to update literal count)
+        countLiteral.resize(2*totalVariables+5);
         // both isSatisfied and countClause are 1 indexed so 
         // we add value at zero index. this is never accessed                           
         isSatisfied.emplace_back(false);
@@ -104,11 +98,10 @@ class clauseSet{
         clauseSetCurrentState state;
         clauseSet(){                 
             // clauses are also 1 indexed put a dummy clause at 0 index
-            clauses.emplace_back(clause(0));           
-            // reserve space and allocate memory for lists
-            literalClauseMap.reserve(2* totalVariables+5);
+            clauses.emplace_back(clause(0));     
+            // push the pointer's of list to the literalClauseMap                 
             for(int i=0;i<2*totalVariables+5;i++)
-                literalClauseMap[i]= new vector<int>();           
+                literalClauseMap.push_back(new vector<int>());           
         }
         /**
          * Add clause method add a clause to the clauseset only if it not
@@ -178,7 +171,9 @@ class SATsolver{
          * satisfiedClauses which is an int
          * currentState object(count of unsatisfied literal, which clauses are yet to be satisfied),
          * Current assignment of the literals and 
-         * number of satisfied clauses(for termination)         
+         * number of satisfied clauses(for termination)   
+         * returns whether clause is satisfied with current state of clauses
+         * and assignment to variables      
          */
         bool dpll(clauseSetCurrentState& state,vector<bool>&assigned,int satisfiedClauses){ 
 
@@ -230,6 +225,7 @@ class SATsolver{
                 if(clauseset->literalClauseMap[compUnitLiteral]->size()>0){  
                     // iterate over all the clauses containing complement of that literal                       
                     for(auto clauseNum:*(clauseset->literalClauseMap[compUnitLiteral])){
+                        if(state.isSatisfied[clauseNum])continue;
                         state.countClause[clauseNum]--; // decrease clauseCount
                         /**
                          * When size of clause goes from 2 to 1 that clause becomes a unit clause
@@ -237,7 +233,7 @@ class SATsolver{
                          * so we find the literal such that it and its complement are not assigned
                          * yet and add the literal to unitLiterals
                          */
-                        if(state.countClause[clauseNum]==1 && state.isSatisfied[clauseNum]==false){
+                        if(state.countClause[clauseNum]==1){
                             for(auto lit: clauseset->clauses[clauseNum].literals){
                                 if(!assigned[lit] && !assigned[complement(lit)]){
                                     state.unitLiterals.emplace_back(lit);
@@ -249,7 +245,7 @@ class SATsolver{
                          * we know that this assignment will not work as we were not able to satisfy 
                          * this clause so we return false
                          */
-                        else if(state.countClause[clauseNum]==0 && state.isSatisfied[clauseNum]==false){
+                        else if(state.countClause[clauseNum]==0){
                             return false;                                
                         }
                     }   
@@ -261,7 +257,6 @@ class SATsolver{
 
             state.unitLiterals.clear();    
             int temp=0;
-            int selectedLiteral;
           
             ///////////// HEURISTIC START ////////////////////////////
             /**
@@ -272,24 +267,27 @@ class SATsolver{
              * literal satifying shortest clauses, first unasigned literal 
              * and randomly selecting literal.             * 
              */
-            int idx=-1,val=0;
+            // bestLiteral denotes the literal corresponding to highest valueof
+            // literal+complement(literal) given by heuristic and
+            // bestValue is the corresponding value for that literal
+            // we then flip polarity of literal with 1/2 probablity
+            int bestLiteral=0,bestValue=-1;
             for(int i=1;i<2*totalVariables;i+=2){
                 if(!assigned[i] && !assigned[i+1]){ // both the literals are unassigned
-                    if(state.countLiteral[i]+state.countLiteral[i+1]>val){
-                        idx=i;val=state.countLiteral[i]+state.countLiteral[i+1];
+                    if(state.countLiteral[i]+state.countLiteral[i+1]>bestValue){
+                        bestLiteral=i;bestValue=state.countLiteral[i]+state.countLiteral[i+1];
                     }
                 }
             }
-            selectedLiteral=idx;      
             int random=rand()%2;
             // randomly choose either positive or negated literal
             if(random%2==0)
-                selectedLiteral=complement(selectedLiteral);
+                bestLiteral=complement(bestLiteral);
 
             ///////////// HEURISTIC ENDS ////////////////////////////
 
             // add the selected literal to unitLiterals
-            state.unitLiterals.emplace_back(selectedLiteral);
+            state.unitLiterals.emplace_back(bestLiteral);
             /**
              * make a copy of current state and assigned vector   
              * all arguments are passed by refrence.
@@ -308,7 +306,7 @@ class SATsolver{
             // remove the literal that was selected earlier and instead 
             // add the negation of that literal in unitLiterals
             state.unitLiterals.pop_back();
-            state.unitLiterals.emplace_back(complement(selectedLiteral));
+            state.unitLiterals.emplace_back(complement(bestLiteral));
             // 2nd DPLL call
             return dpll(state,assigned,satisfiedClauses);            
         }
@@ -340,7 +338,6 @@ int main(){
         }    
     }
     clauses.pureLiteralElim(); // do pure literal elimination
-
     SATsolver dpllsolver(&clauses); // solver object
     vector<bool>assigned(2*totalVariables+5); // assigned vector initially all false   
 

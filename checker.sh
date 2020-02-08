@@ -6,7 +6,8 @@ mkdir dump
 
 g++ CS17BTECH11005-sat.cpp --std=c++11
 for filename in $1/*.cnf; do   
-    ./a.out < $filename >> ./dump/out2.txt
+    echo "$filename"
+    #./a.out < $filename >> ./dump/out2.txt
     time ./a.out < $filename
     echo "$filename"
 done
